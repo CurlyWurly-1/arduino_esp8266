@@ -1,6 +1,6 @@
 #include <stdlib.h>
 #include <SoftwareSerial.h>
-#define SSID "PUT_YOUR_WIFI_SSID_HER"
+#define SSID "PUT_YOUR_WIFI_SSID_HERE"
 #define PASS "PUT_YOUR_WIFI_PASSWORD_HERE"
 #define IP "184.106.153.149"     // thingspeak.com
 #define key "PUT_YOU_THINGSPEAK_API_KEY_HERE"
