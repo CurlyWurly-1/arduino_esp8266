@@ -1,6 +1,7 @@
 # arduino_esp8266
 Send data from an arduino, via wifi to update a thingspeak graph
-I used the following:
+
+N.B. Please note the following to get this working/ You need:
 - Arduino UNO board
 - 3.3 volt regulator (TS1086)
 - ESP8266 (Version 1)
