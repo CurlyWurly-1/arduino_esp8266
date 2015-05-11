@@ -1,0 +1,117 @@
+#include <stdlib.h>
+#include <SoftwareSerial.h>
+#define SSID "PUT_YOUR_WIFI_SSID_HER"
+#define PASS "PUT_YOUR_WIFI_PASSWORD_HERE"
+#define IP "184.106.153.149"     // thingspeak.com
+#define key "PUT_YOU_THINGSPEAK_API_KEY_HERE"
+String response;
+boolean debug = true;
+SoftwareSerial esp8266(10, 11); // RX, TX
+
+/*****************************************************************
+* setup()
+*****************************************************************/
+void setup()
+{
+  esp8266.begin(9600);
+  Serial.begin(9600);
+  delay(1000);
+  if (debug == false){Serial.print("Debug switched off - no messages");}; 
+  data_send("AT");
+  response_read();
+  wifi_connect();
+}
+
+/*****************************************************************
+* loop()
+*****************************************************************/
+void loop(){
+  int val;
+  val = 0;
+  while(1)
+  {
+    val = val + 1;  
+    read_and_send(val);
+    delay(20000);   // 20 second delay
+  }
+}
+
+/*****************************************************************
+* read_and_send
+*****************************************************************/
+void read_and_send(int val){
+  String cmd;
+  String cmd2;  
+ if (debug==true){Serial.println("****************************************");};
+// Set for Multi channel
+// data_send("AT+CIPMUX=1");
+//  delay(2000);
+// Start TCP Comms 
+  cmd = "AT+CIPSTART=\"TCP\",\"";
+  cmd += IP;
+  cmd += "\",80";
+  delay(1000);
+  data_send(cmd);
+  delay(1000);
+  response_read();
+// Output value (and preceed with string length command)
+  cmd = "GET /update?key=";
+  cmd += key;
+  cmd += "&field1=";  
+  cmd += val;
+
+// String length
+  cmd2 =  "AT+CIPSEND=";
+  cmd2 += (cmd.length()+2);
+  delay(1000);
+  data_send(cmd2);
+  delay(1000);
+  response_read();
+// Data output
+  delay(1000);
+  data_send(cmd);
+  delay(1000);
+  response_read();
+}
+
+/*****************************************************************
+* wifi_connect()
+*****************************************************************/ 
+boolean wifi_connect(){
+  // Change wifi mode
+  delay(1000);
+  data_send("AT+CWMODE=1");
+  delay(1000);
+  response_read();
+  // Sign into wifi
+  String cmd="AT+CWJAP=\"";
+  cmd+=SSID;
+  cmd+="\",\"";
+  cmd+=PASS;
+  cmd+="\"";
+  delay(1000);
+  data_send(cmd);
+  delay(7000);
+  response_read();
+}
+
+/*****************************************************************
+* data_send
+*****************************************************************/
+void data_send(String cmd){
+  esp8266.println(cmd);
+  response = ""; 
+  response_read();
+} 
+
+/*****************************************************************
+* response_read
+*****************************************************************/
+void response_read(){
+  char chr;
+ while(esp8266.available())
+ { chr = esp8266.read(); 
+   if (debug == true){Serial.write(chr);}; 
+   response += chr; 
+ };
+}
